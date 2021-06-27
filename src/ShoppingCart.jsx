@@ -17,7 +17,7 @@ export default class ShoppingCart extends Component {
         //console.log("render - ShoppingCart");
 
         return (
-            <div className="container-fluid">
+            <div>
                 <h4>Shopping Cart</h4>
 
                 <div className="row">
@@ -42,6 +42,7 @@ export default class ShoppingCart extends Component {
 
     //Executes after constructor and render method (includes life cycle of child components, if any) of current component
     componentDidMount = async () => {
+        document.title = "Cart - eCommerce";
         //send request to server
         var response = await fetch("http://localhost:5000/products", {
             method: "GET",
