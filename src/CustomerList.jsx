@@ -74,6 +74,10 @@ export default class CustomersList extends Component {
         );
     }
 
+    componentDidMount() {
+        document.title = "Customers - eCommerce";
+    }
+
     //Executes when the user clicks on Refresh button
     onRefreshClick = () => {
         //Update the state using setState method - so that react updates the Browser DOM automatically
