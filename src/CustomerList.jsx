@@ -1,124 +1,129 @@
 import React, { Component } from "react";
-import Product from "./Product";
 
-export default class ShoppingCart extends Component {
-    //Executes when the component is mounted
-    constructor(props) {
-        console.log("constructor - ShoppingCart");
-        super(props); //calling super class's constructor
-
-        //initialization of the state
-        this.state = {
-            products: [
-                { id: 1, productName: "iPhone", price: 8900, quantity: 0 },
-                // { id: 2, productName: "Sony Camera", price: 4500, quantity: 0 },
-                // { id: 3, productName: "Samsung QLED TV", price: 7745, quantity: 0 },
-                // { id: 4, productName: "iPad Pro", price: 12400, quantity: 0 },
-                // { id: 5, productName: "Xbox", price: 7780, quantity: 0 },
-                // { id: 6, productName: "Dell Monitor", price: 880, quantity: 0 },
-            ],
-        };
-    }
+export default class CustomersList extends Component {
+    state = {
+        pageTitle: "Customers",
+        customersCount: 5,
+        customers: [
+            {
+                id: 1,
+                name: "Scott",
+                phone: "123-456",
+                address: { city: "New Delhi" },
+                photo: "https://picsum.photos/id/1010/60",
+            },
+            {
+                id: 2,
+                name: "Jones",
+                phone: "982-014",
+                address: { city: "New Jersy" },
+                photo: "https://picsum.photos/id/1011/60",
+            },
+            {
+                id: 3,
+                name: "Allen",
+                phone: "889-921",
+                address: { city: "London" },
+                photo: "https://picsum.photos/id/1012/60",
+            },
+            {
+                id: 4,
+                name: "James",
+                phone: null,
+                address: { city: "Berlin" },
+                photo: "https://picsum.photos/id/1013/60",
+            },
+            {
+                id: 5,
+                name: "John",
+                phone: null,
+                address: { city: "New York" },
+                photo: "https://picsum.photos/id/1014/60",
+            },
+        ],
+    };
 
     render() {
-        console.log("render - ShoppingCart");
-
         return (
-            <div className="container-fluid">
-                <h4>Shopping Cart</h4>
+            <div>
+                <h4 className="m-1 p-1">
+                    {this.state.pageTitle}
 
-                <div className="row">
-                    {this.state.products.map((prod) => {
-                        return (
-                            <Product
-                                key={prod.id}
-                                product={prod}
-                                onIncrement={this.handleIncrement}
-                                onDecrement={this.handleDecrement}
-                                onDelete={this.handleDelete}
-                            >
-                                <button className="btn btn-primary">Buy Now</button>
-                            </Product>
-                        );
-                    })}
-                </div>
+                    <span className="badge badge-secondary m-2">
+                        {this.state.customersCount}
+                    </span>
+
+                    <button className="btn btn-info" onClick={this.onRefreshClick}>
+                        Refresh
+                    </button>
+                </h4>
+
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Photo</th>
+                            <th>Customer Name</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                        </tr>
+                    </thead>
+                    <tbody>{this.getCustomerRow()}</tbody>
+                </table>
             </div>
         );
     }
-    // render ends here
 
-    //Executes after constructor and render method (includes life cycle of child components, if any) of current component
-    componentDidMount() {
-        //fetch data from data source
-        console.log("componentDidMount - ShoppingCart");
-    }
+    //Executes when the user clicks on Refresh button
+    onRefreshClick = () => {
+        //Update the state using setState method - so that react updates the Browser DOM automatically
+        this.setState({ customersCount: 7 });
+    };
 
-    componentDidUpdate(prevProps, prevState) {
-        console.log(
-            "componentDidUpdate - ShoppingCart",
-            prevProps,
-            prevState,
-            this.props,
-            this.state
-        );
-
-        // if (prevProps.x != this.props.x) {
-        //   //make http call
-        // }
-    }
-
-    //Executes when the current instance of current component is being deleted from memory
-    componentWillUnmount() {
-        console.log("componentWillUnmount - ShoppingCart");
-    }
-
-    componentDidCatch(error, info) {
-        console.log("componentDidCatch - ShoppingCart");
-        console.log(error, info);
-
-        localStorage.lastError = `${error}\n${JSON.stringify(info)}`;
-    }
-
-    //executes when the user clicks on + button.
-    handleIncrement = (product, maxValue) => {
-        //get index of selected product
-        let allProducts = [...this.state.products];
-        let index = allProducts.indexOf(product);
-
-        if (allProducts[index].quantity < maxValue) {
-            allProducts[index].quantity++;
-
-            //update the state of current component (parent component)
-            this.setState({ products: allProducts });
+    getPhoneToRender = (phone) => {
+        if (phone) return phone;
+        else {
+            return <div className="bg-warning p-2 text-center">No Phone</div>;
         }
     };
 
-    //executes when the user clicks on - button.
-    handleDecrement = (product, minValue) => {
-        //get index of selected product
-        let allProducts = [...this.state.products];
-        let index = allProducts.indexOf(product);
-
-        if (allProducts[index].quantity > minValue) {
-            allProducts[index].quantity--;
-
-            //update the state of current component (parent component)
-            this.setState({ products: allProducts });
-        }
+    getCustomerRow = () => {
+        return this.state.customers.map((cust, index) => {
+            return (
+                <tr key={cust.id}>
+                    <td>{cust.id}</td>
+                    <td>
+                        <img src={cust.photo} alt="Customer" />
+                        <div>
+                            <button
+                                className="btn btn-sm btn-secondary"
+                                onClick={() => {
+                                    this.onChangePictureClick(cust, index);
+                                }}
+                            >
+                                Change Picture
+                            </button>
+                        </div>
+                    </td>
+                    <td>{cust.name}</td>
+                    <td>{this.getPhoneToRender(cust.phone)}</td>
+                    <td>{cust.address.city}</td>
+                </tr>
+            );
+        });
     };
 
-    //executes when the user clicks on Delete (X) button in the Product component.
-    handleDelete = (product) => {
-        //get index of selected product
-        let allProducts = [...this.state.products];
-        let index = allProducts.indexOf(product);
+    //Executes when the user clicks on "Change Picture" button in the grid
+    //Receives the "customer" object and index of the currently clicked customer
+    onChangePictureClick = (cust, index) => {
+        //console.log(cust);
+        //console.log(index);
 
-        if (window.confirm("Are you sure to delete?")) {
-            //delete product based on index
-            allProducts.splice(index, 1);
+        //get existing customers
+        var custArr = this.state.customers;
+        custArr[index].photo = "https://picsum.photos/id/104/60";
 
-            //update the state of current component (parent component)
-            this.setState({ products: allProducts });
-        }
+        //update "customers" array in the state
+        this.setState({ customers: custArr });
     };
 }
