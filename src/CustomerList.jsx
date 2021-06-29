@@ -132,7 +132,7 @@ export default class CustomersList extends Component {
                 var allCustomers = [...this.state.customers];
 
                 allCustomers = allCustomers.filter((cust) => {
-                    return cust.id != id;
+                    return cust.id !== id;
                 });
                 this.setState({ customers: allCustomers });
             }
