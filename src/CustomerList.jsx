@@ -1,47 +1,15 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 export default class CustomersList extends Component {
-    state = {
-        pageTitle: "Customers",
-        customersCount: 5,
-        customers: [
-            {
-                id: 1,
-                name: "Scott",
-                phone: "123-456",
-                address: { city: "New Delhi" },
-                photo: "https://picsum.photos/id/1010/60",
-            },
-            {
-                id: 2,
-                name: "Jones",
-                phone: "982-014",
-                address: { city: "New Jersy" },
-                photo: "https://picsum.photos/id/1011/60",
-            },
-            {
-                id: 3,
-                name: "Allen",
-                phone: "889-921",
-                address: { city: "London" },
-                photo: "https://picsum.photos/id/1012/60",
-            },
-            {
-                id: 4,
-                name: "James",
-                phone: null,
-                address: { city: "Berlin" },
-                photo: "https://picsum.photos/id/1013/60",
-            },
-            {
-                id: 5,
-                name: "John",
-                phone: null,
-                address: { city: "New York" },
-                photo: "https://picsum.photos/id/1014/60",
-            },
-        ],
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            pageTitle: "Customers",
+            customersCount: 5,
+            customers: [],
+        };
+    }
 
     render() {
         return (
@@ -53,9 +21,9 @@ export default class CustomersList extends Component {
                         {this.state.customersCount}
                     </span>
 
-                    <button className="btn btn-info" onClick={this.onRefreshClick}>
-                        Refresh
-                    </button>
+                    <Link to="/new-customer" className="btn btn-primary">
+                        New Customer
+                    </Link>
                 </h4>
 
                 <table className="table">
@@ -66,6 +34,7 @@ export default class CustomersList extends Component {
                             <th>Customer Name</th>
                             <th>Phone</th>
                             <th>City</th>
+                            <th>Options</th>
                         </tr>
                     </thead>
                     <tbody>{this.getCustomerRow()}</tbody>
@@ -74,14 +43,21 @@ export default class CustomersList extends Component {
         );
     }
 
-    componentDidMount() {
+    componentDidMount = async () => {
         document.title = "Customers - eCommerce";
-    }
 
-    //Executes when the user clicks on Refresh button
-    onRefreshClick = () => {
-        //Update the state using setState method - so that react updates the Browser DOM automatically
-        this.setState({ customersCount: 7 });
+        //'get' request('/customers')
+
+        let response = await fetch("http://localhost:5000/customers", {
+            method: "GET",
+        });
+        if (response.ok) {
+            //200 to 299
+            let body = await response.json();
+            this.setState({ customers: body, customersCount: body.length });
+        } else {
+            console.log("Error: " + response.status);
+        }
     };
 
     getPhoneToRender = (phone) => {
@@ -112,6 +88,19 @@ export default class CustomersList extends Component {
                     <td>{cust.name}</td>
                     <td>{this.getPhoneToRender(cust.phone)}</td>
                     <td>{cust.address.city}</td>
+                    <td>
+                        <Link to={`/edit-customer/${cust.id}`} className="btn btn-info">
+                            Edit
+                        </Link>
+                        <button
+                            className="btn btn-danger"
+                            onClick={() => {
+                                this.onDeleteClick(cust.id);
+                            }}
+                        >
+                            Delete
+                        </button>
+                    </td>
                 </tr>
             );
         });
@@ -129,5 +118,24 @@ export default class CustomersList extends Component {
 
         //update "customers" array in the state
         this.setState({ customers: custArr });
+    };
+
+    onDeleteClick = async (id) => {
+        if (window.confirm("Are you sure to delete this customer?")) {
+            //make DELETE request
+            var response = await fetch(`http://localhost:5000/customers/${id}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                //200 to 299
+                var allCustomers = [...this.state.customers];
+
+                allCustomers = allCustomers.filter((cust) => {
+                    return cust.id != id;
+                });
+                this.setState({ customers: allCustomers });
+            }
+        }
     };
 }
